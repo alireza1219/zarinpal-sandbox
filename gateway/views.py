@@ -4,6 +4,7 @@ from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_protect
 from api import models
+from . import helpers
 
 
 def sandbox_payment_view(request, authority):
@@ -32,11 +33,16 @@ def sandbox_payment_process_view(request):
     if now() > transaction.created_at + timedelta(minutes=30):
         return render(request, "error.html", {"message": "The transaction has expired."}, status=400)
 
+    callback_status = 'NOK'
     if payment_status == 'success':
         transaction.status = models.Transaction.SUCCESS
+        callback_status = 'OK'
     else:
         transaction.status = models.Transaction.FAILED
-
     transaction.save()
 
-    return redirect(transaction.callback_url)
+    redirect_url = helpers.construct_callback_url(
+        transaction.callback_url, authority, callback_status
+    )
+
+    return redirect(redirect_url)
