@@ -9,7 +9,7 @@ def construct_callback_url(callback_url, authority, status):
 
     query_params = parse_qs(parsed_url.query)
     query_params['Authority'] = authority
-    query_params['status'] = status
+    query_params['Status'] = status
 
     new_query = urlencode(query_params, doseq=True)
     modified_url = urlunparse(parsed_url._replace(query=new_query))
