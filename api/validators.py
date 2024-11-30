@@ -1,4 +1,4 @@
-from .models import Merchant
+from . import models
 
 
 def validate_merchant_id(merchant_id):
@@ -25,9 +25,9 @@ def is_valid_merchant_id(merchant_id):
     Checks if the provided MerchantID exists in the database.
     """
     try:
-        Merchant.objects.get(merchant_id=merchant_id)
+        models.Merchant.objects.get(merchant_id=merchant_id)
         return True
-    except Merchant.DoesNotExist:
+    except models.Merchant.DoesNotExist:
         return False
 
 
@@ -65,5 +65,30 @@ def validate_description(description):
 
     if not description:
         errors.append("The description field is required.")
+
+    return errors
+
+
+def validate_authority(authority, merchant):
+    """
+    Validates the Authority field. This validator is used with the PaymentVerification process.
+    """
+    errors = []
+    flag = False  # An invalid authority always returns the same error message.
+
+    try:
+        transaction = models.Transaction.objects.get(authority=authority)
+        if transaction.merchant.merchant_id != merchant:
+            flag = True
+    except models.Transaction.DoesNotExist:
+        flag = True
+
+    if flag:
+        errors.extend(
+            [
+                'Session is not this merchant_id session.',
+                '-53',
+            ]
+        )
 
     return errors

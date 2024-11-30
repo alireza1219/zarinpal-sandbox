@@ -1,10 +1,15 @@
 from django.urls import path
-from .views import PaymentRequestView
+from . import views
 
 urlpatterns = [
     path(
         'pg/rest/WebGate/PaymentRequest.json',
-        PaymentRequestView.as_view(),
+        views.PaymentRequestView.as_view(),
         name='payment_request'
+    ),
+    path(
+        'pg/rest/WebGate/PaymentVerification.json',
+        views.PaymentVerificationView.as_view(),
+        name='payment_verification'
     ),
 ]
